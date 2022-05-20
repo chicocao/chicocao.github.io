@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>Go-Sync-Once</title>
+      <link href="/2022/05/20/go-sync-once/"/>
+      <url>/2022/05/20/go-sync-once/</url>
+      
+        <content type="html"><![CDATA[<h3 id="源码-go-version-go1-14-windows-x2F-amd64"><a href="#源码-go-version-go1-14-windows-x2F-amd64" class="headerlink" title="源码 go version go1.14 windows/amd64"></a>源码 go version go1.14 windows/amd64</h3><pre class="line-numbers language-go" data-language="go"><code class="language-go"><span class="token keyword">package</span> sync<span class="token keyword">import</span> <span class="token punctuation">(</span><span class="token string">"sync/atomic"</span><span class="token punctuation">)</span><span class="token comment">// Once is an object that will perform exactly one action.</span><span class="token keyword">type</span> Once <span class="token keyword">struct</span> <span class="token punctuation">{</span><span class="token comment">// done 用来判断有没有执行过</span>done <span class="token builtin">uint32</span>m    Mutex<span class="token punctuation">}</span><span class="token keyword">func</span> <span class="token punctuation">(</span>o <span class="token operator">*</span>Once<span class="token punctuation">)</span> <span class="token function">Do</span><span class="token punctuation">(</span>f <span class="token keyword">func</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token keyword">if</span> atomic<span class="token punctuation">.</span><span class="token function">LoadUint32</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>o<span class="token punctuation">.</span>done<span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">0</span> <span class="token punctuation">{</span><span class="token comment">// Outlined slow-path to allow inlining of the fast-path.</span>o<span class="token punctuation">.</span><span class="token function">doSlow</span><span class="token punctuation">(</span>f<span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token keyword">func</span> <span class="token punctuation">(</span>o <span class="token operator">*</span>Once<span class="token punctuation">)</span> <span class="token function">doSlow</span><span class="token punctuation">(</span>f <span class="token keyword">func</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>o<span class="token punctuation">.</span>m<span class="token punctuation">.</span><span class="token function">Lock</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token keyword">defer</span> o<span class="token punctuation">.</span>m<span class="token punctuation">.</span><span class="token function">Unlock</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token comment">// 与atomic.LoadUint32结合用的话，就相当于双层加锁</span><span class="token keyword">if</span> o<span class="token punctuation">.</span>done <span class="token operator">==</span> <span class="token number">0</span> <span class="token punctuation">{</span><span class="token keyword">defer</span> atomic<span class="token punctuation">.</span><span class="token function">StoreUint32</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>o<span class="token punctuation">.</span>done<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token function">f</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>]]></content>
+      
+      
+      <categories>
+          
+          <category> Go源码 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Go </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Hello World</title>
       <link href="/2022/05/20/hello-world/"/>
       <url>/2022/05/20/hello-world/</url>
