@@ -1,2 +1,2 @@
-http://example.com/2022/05/20/go-sync-once/
-http://example.com/2022/05/20/hello-world/
+https://chicocao.github.io/2022/05/20/go-sync-once/
+https://chicocao.github.io/2022/05/20/hello-world/
