@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search> 
+  
+  
+    
+    <entry>
+      <title>git配置多账号</title>
+      <link href="/2023/09/18/git-pei-zhi-duo-zhang-hao/"/>
+      <url>/2023/09/18/git-pei-zhi-duo-zhang-hao/</url>
+      
+        <content type="html"><![CDATA[<h1 id="生成第一个账号（公司）信息"><a href="#生成第一个账号（公司）信息" class="headerlink" title="生成第一个账号（公司）信息"></a>生成第一个账号（公司）信息</h1><p>1、 ssh-keygen -t rsa -C “公司@xx.com”</p><p>2、连续敲回车，会在~/.ssh下生成id_rsa和id_rsa.pub</p><p>3、把id_rsa.pub的内容设置到公司的git的ssh的key里</p><h1 id="生成第二个账号（个人可用在github或其他网站上）信息"><a href="#生成第二个账号（个人可用在github或其他网站上）信息" class="headerlink" title="生成第二个账号（个人可用在github或其他网站上）信息"></a>生成第二个账号（个人可用在github或其他网站上）信息</h1><p>1、生成github新key</p><p>ssh-keygen -t rsa -C “个人@qq.com”</p><p>save第一步的时候输入id_rsa_new，为了不覆盖原来的id_rsa</p><p>2、ssh-add ~/.ssh/id_rsa_new</p><p>出现Could not open a connection to your authentication agent.</p><p>这时可以使用：ssh-agent bash 命令，然后再次使用ssh-add ~/.ssh/id_rsa_new这个命令就没问题了。</p><p>3、把id_rsa_new.pub放到另一个网站的sshKey上</p><p>4、~/.ssh/下新建.config</p><pre class="line-numbers language-none"><code class="language-none"> $ cat configHost 公司域名HostName 公司域名User  gitIdentityFile ~/.ssh/id_rsaHost github.comHostName github.comUser  gitIdentityFile ~/.ssh/id_rsa_new<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>注：实例中可理解成：</p><p>id_rsa.pub生成用的是公司邮箱</p><p>id_rsa_new.pub用的是个人邮箱，即github上的个人邮箱</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> git </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Hello World</title>
+      <link href="/2023/09/18/hello-world/"/>
+      <url>/2023/09/18/hello-world/</url>
+      
+        <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p><h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ hexo new <span class="token string">"My New Post"</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ hexo server<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ hexo generate<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ hexo deploy<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Go-Sync-Once</title>
+      <link href="/2022/05/20/go-sync-once/"/>
+      <url>/2022/05/20/go-sync-once/</url>
+      
+        <content type="html"><![CDATA[<h3 id="源码-go-version-go1-14-windows-x2F-amd64"><a href="#源码-go-version-go1-14-windows-x2F-amd64" class="headerlink" title="源码 go version go1.14 windows/amd64"></a>源码 go version go1.14 windows/amd64</h3><pre class="line-numbers language-go" data-language="go"><code class="language-go"><span class="token keyword">package</span> sync<span class="token keyword">import</span> <span class="token punctuation">(</span><span class="token string">"sync/atomic"</span><span class="token punctuation">)</span><span class="token comment">// Once is an object that will perform exactly one action.</span><span class="token keyword">type</span> Once <span class="token keyword">struct</span> <span class="token punctuation">{</span><span class="token comment">// done 用来判断有没有执行过</span>done <span class="token builtin">uint32</span>m    Mutex<span class="token punctuation">}</span><span class="token keyword">func</span> <span class="token punctuation">(</span>o <span class="token operator">*</span>Once<span class="token punctuation">)</span> <span class="token function">Do</span><span class="token punctuation">(</span>f <span class="token keyword">func</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token keyword">if</span> atomic<span class="token punctuation">.</span><span class="token function">LoadUint32</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>o<span class="token punctuation">.</span>done<span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">0</span> <span class="token punctuation">{</span><span class="token comment">// Outlined slow-path to allow inlining of the fast-path.</span>o<span class="token punctuation">.</span><span class="token function">doSlow</span><span class="token punctuation">(</span>f<span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token keyword">func</span> <span class="token punctuation">(</span>o <span class="token operator">*</span>Once<span class="token punctuation">)</span> <span class="token function">doSlow</span><span class="token punctuation">(</span>f <span class="token keyword">func</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>o<span class="token punctuation">.</span>m<span class="token punctuation">.</span><span class="token function">Lock</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token keyword">defer</span> o<span class="token punctuation">.</span>m<span class="token punctuation">.</span><span class="token function">Unlock</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token comment">// 与atomic.LoadUint32结合用的话，就相当于双层加锁</span><span class="token keyword">if</span> o<span class="token punctuation">.</span>done <span class="token operator">==</span> <span class="token number">0</span> <span class="token punctuation">{</span><span class="token keyword">defer</span> atomic<span class="token punctuation">.</span><span class="token function">StoreUint32</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>o<span class="token punctuation">.</span>done<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token function">f</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>]]></content>
+      
+      
+      <categories>
+          
+          <category> Go源码 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Go </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+  
+  
+</search>
