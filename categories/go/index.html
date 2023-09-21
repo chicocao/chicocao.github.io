@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="Category: Go源码, Chico Cao">
+    <meta name="keywords" content="Category: go, Chico Cao">
     <meta name="description" content="Chico Cao">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -17,7 +17,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>Category: Go源码 | Chico Cao</title>
+    <title>Category: go | Chico Cao</title>
     <link rel="icon" type="image/png" href="/favicon.png">
     
 
@@ -403,7 +403,7 @@
                 
                 <a href="/categories/Go%E6%BA%90%E7%A0%81/" title="Go源码: 1">
                     <span class="chip center-align waves-effect waves-light
-                             chip-active "
+                             chip-default "
                             style="background-color: #F9EBEA;">Go源码
                         <span class="tag-length">1</span>
                     </span>
@@ -412,7 +412,7 @@
                 
                 <a href="/categories/go/" title="go: 1">
                     <span class="chip center-align waves-effect waves-light
-                             chip-default "
+                             chip-active "
                             style="background-color: #F5EEF8;">go
                         <span class="tag-length">1</span>
                     </span>
@@ -432,37 +432,34 @@
             
             <div class="article tag-post col s12 m6 l4" data-aos="zoom-in">
                 <div class="card">
-                    <a href="/2022/05/20/go-sync-once/">
+                    <a href="/2023/09/21/single-fang-zhi-huan-cun-ji-chuan/">
                         <div class="card-image tag-image">
                             
                             
-                            <img src="/medias/featureimages/14.jpg" class="responsive-img" alt="Go-Sync-Once">
+                            <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="single 防止缓存击穿">
                             
-                            <span class="card-title">Go-Sync-Once</span>
+                            <span class="card-title">single 防止缓存击穿</span>
                         </div>
                     </a>
                     <div class="card-content article-content">
                         <div class="summary block-with-text">
                             
-                                源码 go version go1.14 windows/amd64package sync
+                                什么是缓存击穿我们常说的缓存问题：缓存雪崩，缓存击穿，缓存穿透都分别指什么呢？简单来说：
 
-import (
-	"sync/atomic"
-)
-
-// Once is an object that will perform exactl
+缓存雪崩是指缓存在同一时间全部失效，导致压力全部转移到DB上。
+缓存击穿指的是某个key在失效的这一刻，有大量的请求数据，这些数据压力也转移到了DB
                             
                         </div>
                         <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-05-20
+                                <i class="far fa-clock fa-fw icon-date"></i>2023-09-21
                             </span>
                             <span class="publish-author">
                                 
                                 <i class="fas fa-bookmark fa-fw icon-category"></i>
                                 
-                                <a href="/categories/Go%E6%BA%90%E7%A0%81/" class="post-category">
-                                    Go源码
+                                <a href="/categories/go/" class="post-category">
+                                    go
                                 </a>
                                 
                                 
@@ -473,8 +470,8 @@ import (
                     
                     <div class="card-action article-tags">
                         
-                        <a href="/tags/Go/">
-                            <span class="chip bg-color">Go</span>
+                        <a href="/tags/go/">
+                            <span class="chip bg-color">go</span>
                         </a>
                         
                     </div>
