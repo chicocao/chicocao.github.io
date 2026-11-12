@@ -284,7 +284,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.6k
+                    1.8k
                 </div>
                 
 
@@ -313,7 +313,13 @@
 block profile  看goroutine阻塞在哪里
 mutex profile  看锁竞争在哪里<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 <p>只看CPU profile很容易误判。例如，一个请求大量时间在等待锁，它不会一直出现在CPU火焰图的顶部，但它仍然会限制吞吐。</p>
-<p>block和mutex默认是不开的，需要线下开启并压测看。</p>
+<p>block和mutex默认是不开的，需要线下开启并压测看,压测版本可以在 main() 开头临时加入：</p>
+<pre class="line-numbers language-go" data-language="go"><code class="language-go">runtime<span class="token punctuation">.</span><span class="token function">SetBlockProfileRate</span><span class="token punctuation">(</span><span class="token number">1_000_000</span><span class="token punctuation">)</span> <span class="token comment">// 控制采样频率</span>
+<span class="token comment">// • 如果某次阻塞的时间 大于或等于 rate 纳秒，该事件一定会被记录。</span>
+<span class="token comment">// • 如果某次阻塞的时间 小于 rate 纳秒，则会按 阻塞时间 / rate 的概率进行随机采样（例如阻塞了 0.2 毫秒，而 rate 设为 1 毫秒，则有 20% 的概率被记录）。</span>
+runtime<span class="token punctuation">.</span><span class="token function">SetMutexProfileFraction</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>     <span class="token comment">// 采集所有 mutex 竞争</span>
+<span class="token comment">// • 平均每发生 rate 次互斥锁争用事件，采样记录 1 次（即采样概率为 1/rate）。例如设为 100，表示大约每 100 次锁争用记录 1 次。</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
 <h2 id="三、把请求解析移出-UDP-接收循环"><a href="#三、把请求解析移出-UDP-接收循环" class="headerlink" title="三、把请求解析移出 UDP 接收循环"></a>三、把请求解析移出 UDP 接收循环</h2><p>原来的逻辑近似如下：</p>
 <pre class="line-numbers language-go" data-language="go"><code class="language-go"><span class="token keyword">func</span> <span class="token punctuation">(</span>s <span class="token operator">*</span>Server<span class="token punctuation">)</span> <span class="token function">receiveLoop</span><span class="token punctuation">(</span>conn <span class="token operator">*</span>net<span class="token punctuation">.</span>UDPConn<span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token keyword">for</span> <span class="token punctuation">{</span>
@@ -418,8 +424,9 @@ s<span class="token punctuation">.</span><span class="token function">Unlock</sp
 <p>所有请求都会竞争同一把锁。block profile显示，约98%的阻塞都集中在这里。</p>
 <p>这个功能只服务于一个低频监控页面，却让每个线上请求付出两次全局加锁的代价，收益和成本严重不匹配。最终删除 <code>sessionTable</code> 及对应监控展示。</p>
 <h2 id="六、单-UDP-socket-也可能成为锁竞争点"><a href="#六、单-UDP-socket-也可能成为锁竞争点" class="headerlink" title="六、单 UDP socket 也可能成为锁竞争点"></a>六、单 UDP socket 也可能成为锁竞争点</h2><p>删除 <code>sessionTable</code> 后，新的block profile显示约97.6%的阻塞转移到了：</p>
-<pre class="line-numbers language-text" data-language="text"><code class="language-text">internal/poll.(*fdMutex).rwlock
-net.(*UDPConn).WriteMsgUDP<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-text" data-language="text"><code class="language-text">net.(*UDPConn).WriteMsgUDP
+...
+poll.(*fdMutex).rwlock<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
 <p>虽然Go允许多个 goroutine 并发调用 <code>UDPConn</code>，但同一个fd 的操作仍要经过内部同步。大量请求共享一个 UDP socket 回包时，写路径会争用同一个 <code>fdMutex</code>。</p>
 <p>假设同时有 4 个请求：</p>
@@ -428,8 +435,9 @@ net.(*UDPConn).WriteMsgUDP<span aria-hidden="true" class="line-numbers-rows"><sp
 请求 C ─┤
 请求 D ─┘<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 <p>但回包时，它们全部调用同一个：</p>
-<pre class="line-numbers language-none"><code class="language-none">internal/poll.(*fdMutex).rwlock
-    net.(*UDPConn).WriteMsgUDP<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-none"><code class="language-none">net.(*UDPConn).WriteMsgUDP
+...
+poll.(*fdMutex).rwlock<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 <p>这里的 conn 都指向 fd=10。</p>
 <p>Go 为了保证同一个 fd 的并发操作安全，内部有 fdMutex。</p>
 <p>于是在同一地址和端口创建多个启用了 <code>SO_REUSEPORT</code> 的UDP socket，让内核把流量分散到多个接收队列：</p>
